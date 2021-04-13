@@ -18,7 +18,7 @@ cursor.execute(drop_time)
 
 #Create new version of tables if not existed
 cursor.execute(create_users)
-cursor.execute(create_songs)
 cursor.execute(create_artists)
+cursor.execute(create_songs)
 cursor.execute(create_time)
 cursor.execute(create_songplays)
