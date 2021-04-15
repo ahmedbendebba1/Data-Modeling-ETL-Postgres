@@ -3,11 +3,11 @@ drop_table = "DROP TABLE IF EXISTS "
 
 create_songplays = create_table + "songplays(\
     songplay_id SERIAL PRIMARY KEY,\
-    start_time varchar REFERENCES time(start_time),\
-    user_id int REFERENCES users(user_id),\
+    start_time varchar,\
+    user_id int ,\
     level varchar,\
-    song_id varchar REFERENCES songs(song_id),\
-    artist_id varchar REFERENCES artists(artist_id),\
+    song_id varchar ,\
+    artist_id varchar ,\
     session_id int,\
     location varchar,\
     user_agent varchar\
@@ -24,7 +24,7 @@ create_users = create_table + "users(\
 create_songs = create_table + "songs(\
     song_id varchar PRIMARY KEY, \
     title varchar, \
-    artist_id varchar REFERENCES artists(artist_id), \
+    artist_id varchar, \
     year int, \
     duration float\
     );"
@@ -64,8 +64,8 @@ time_table_insert = "INSERT INTO time (start_time, hour, day, week,\
 user_table_insert = "INSERT INTO users (user_id, first_name, last_name, gender,\
     level) VALUES (%s, %s, %s, %s, %s) ON CONFLICT (user_id) DO NOTHING;"
 songplay_table_insert = "INSERT INTO songplays (start_time, user_id, level, song_id,\
-    artist_id, session_id, location, user_agent) VALUES (%s, %s, %s, %s, %s %s, %s, %s)\
-    ON CONFLICT (user_id) DO NOTHING;"
+    artist_id, session_id, location, user_agent) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)\
+    ON CONFLICT DO NOTHING;"
 
 song_select = ("SELECT songs.song_id, artists.artist_id FROM songs \
 JOIN artists ON songs.artist_id = artists.artist_id \

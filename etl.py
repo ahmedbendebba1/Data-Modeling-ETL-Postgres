@@ -2,6 +2,7 @@ import os
 import glob
 import psycopg2
 import pandas as pd
+import numpy as np
 from sql_queries import *
 
 
@@ -49,7 +50,7 @@ for song_path in song_paths:
     cur.execute(song_table_insert, song_data)
 
 log_paths = get_files('data/log_data')
-"""
+
 #ETL time table
 for log_path in log_paths:
     #Extract data
@@ -70,18 +71,19 @@ for log_path in log_paths:
     for index, column_label in enumerate(column_labels):
         time_df[column_label] = time_data[index]
 
-    time_df.dropna(inplace=True)
+    time_df.dropna(subset=['start_time'],inplace=True)
 
     #Load data
     for i, row in time_df.iterrows():
         cur.execute(time_table_insert, list(row))
-"""
+
 #ETL user table
 for log_path in log_paths:
     #Extract data
     log_df = pd.read_json(log_path, lines=True)
     user_df = log_df[['userId', 'firstName', 'lastName', 'gender', 'level']].copy()
-    user_df.dropna(inplace=True)
+    user_df['userId'] = user_df['userId'].replace('',np.nan)
+    user_df.dropna(subset=['userId'],inplace=True)
     #Load data
     for i, row in user_df.iterrows():
         cur.execute(user_table_insert, row)
@@ -92,6 +94,9 @@ for log_path in log_paths:
     log_df = pd.read_json(log_path, lines=True)
     ts_df = log_df['ts']
     log_df['ts'] = pd.to_datetime(ts_df, unit='ms')
+
+    log_df['userId'] = log_df['userId'].replace('',np.nan)
+    log_df.dropna(subset=['userId'],inplace=True)
     
     for index, row in log_df.iterrows():
         # get songid and artistid from song and artist tables
@@ -104,8 +109,9 @@ for log_path in log_paths:
             songid, artistid = None, None
 
         # insert songplay record
-        songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
-        print(songplay_data)
+        songplay_data = (row.ts, row.userId, row.level, songid, artistid,\
+            row.sessionId, row.location, row.userAgent\
+            )
         cur.execute(songplay_table_insert, songplay_data)
 
 conn.close()
